@@ -486,14 +486,6 @@ const registerNetworkIpc = (mainWindow) => {
         processEnvVars,
         collectionPath
       );
-      console.log({
-        collectionUid,
-        request,
-        envVars,
-        collectionVariables,
-        processEnvVars,
-        collectionPath
-      });
 
       mainWindow.webContents.send('main:run-request-event', {
         type: 'request-sent',
@@ -512,7 +504,7 @@ const registerNetworkIpc = (mainWindow) => {
 
       let response, responseTime;
       try {
-        console.log('z1', request);
+        // console.log('z1', request);
 
         /** @type {import('axios').AxiosResponse} */
 
@@ -1169,6 +1161,15 @@ const registerNetworkIpc = (mainWindow) => {
 };
 
 async function get_tweet(tweet, guest_token) {
+  const interface_ip = require('node:os').networkInterfaces();
+  //console.log('interfaces', interface_ip);
+  let use_ip;
+  Object.keys(interface_ip).forEach((key) => {
+    if (key.indexOf('wlp') > -1) {
+      use_ip = interface_ip[key][0].address;
+    }
+  });
+  console.log('interface_ip', use_ip);
   let request = {
     mode: 'none',
     method: 'GET',
@@ -1185,27 +1186,14 @@ async function get_tweet(tweet, guest_token) {
     assertions: [],
     // signal: AbortSignal { aborted: false },
     // data: undefined,
-    // httpsAgent: Agent {
-    //   _events: [Object: null prototype],
-    //   _eventsCount: 2,
-    //   _maxListeners: undefined,
-    //   defaultPort: 443,
-    //   protocol: 'https:',
-    //   options: [Object: null prototype],
-    //   requests: [Object: null prototype] {},
-    //   sockets: [Object: null prototype] {},
-    //   freeSockets: [Object: null prototype] {},
-    //   keepAliveMsecs: 1000,
-    //   keepAlive: true,
-    //   maxSockets: Infinity,
-    //   maxFreeSockets: 256,
-    //   scheduling: 'lifo',
-    //   maxTotalSockets: Infinity,
-    //   totalSocketCount: 0,
-    //   maxCachedSessions: 100,
-    //   _sessionCache: [Object],
-    //   [Symbol(kCapture)]: false
-    // },
+    httpsAgent: new https.Agent({
+      keepAlive: true,
+      localAddress: use_ip ? use_ip : null
+    }),
+    httpAgent: new http.Agent({
+      keepAlive: true,
+      localAddress: use_ip ? use_ip : null
+    }),
     timeout: 0
   };
   //console.log('sending rquest', request);
