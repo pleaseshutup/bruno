@@ -195,6 +195,7 @@ const configureRequest = async (
       request.httpAgent = new HttpProxyAgent(proxyUri);
     }
   } else if (Object.keys(httpsAgentRequestFields).length > 0) {
+    //console.log('confirm using basic agent', httpsAgentRequestFields);
     request.httpsAgent = new https.Agent({
       ...httpsAgentRequestFields
     });
@@ -252,6 +253,7 @@ const configureRequest = async (
   if (preferencesUtil.shouldSendCookies()) {
     const cookieString = getCookieStringForUrl(request.url);
     if (cookieString && typeof cookieString === 'string' && cookieString.length) {
+      console.log('adding cookie', cookieString);
       request.headers['cookie'] = cookieString;
     }
   }
@@ -484,6 +486,14 @@ const registerNetworkIpc = (mainWindow) => {
         processEnvVars,
         collectionPath
       );
+      console.log({
+        collectionUid,
+        request,
+        envVars,
+        collectionVariables,
+        processEnvVars,
+        collectionPath
+      });
 
       mainWindow.webContents.send('main:run-request-event', {
         type: 'request-sent',
@@ -502,7 +512,10 @@ const registerNetworkIpc = (mainWindow) => {
 
       let response, responseTime;
       try {
+        console.log('z1', request);
+
         /** @type {import('axios').AxiosResponse} */
+
         response = await axiosInstance(request);
 
         // Prevents the duration on leaking to the actual result
@@ -1154,6 +1167,129 @@ const registerNetworkIpc = (mainWindow) => {
     }
   });
 };
+
+async function get_tweet(tweet, guest_token) {
+  let request = {
+    mode: 'none',
+    method: 'GET',
+    url: `http://api.x.com/graphql/Xl5pC_lBk_gcO2ItU39DQw/TweetResultByRestId?variables=%7B%22tweetId%22%3A%22${tweet}%22%2C%22withCommunity%22%3Atrue%2C%22includePromotedContent%22%3Afalse%2C%22withVoice%22%3Afalse%7D&features=%7B%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22communities_web_enable_tweet_community_results_fetch%22%3Atrue%2C%22c9s_tweet_anatomy_moderator_badge_enabled%22%3Atrue%2C%22articles_preview_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22responsive_web_twitter_article_tweet_consumption_enabled%22%3Atrue%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22creator_subscriptions_quote_tweet_preview_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22rweb_video_timestamps_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22rweb_tipjar_consumption_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D&fieldToggles=%7B%22withArticleRichContentState%22%3Atrue%2C%22withArticlePlainText%22%3Afalse%2C%22withGrokAnalyze%22%3Afalse%7D`,
+    headers: {
+      authorization:
+        'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
+      'x-guest-token': guest_token //'1802740620479664445'
+    },
+    params: [],
+    responseType: 'arraybuffer',
+    script: {},
+    vars: {},
+    assertions: [],
+    // signal: AbortSignal { aborted: false },
+    // data: undefined,
+    // httpsAgent: Agent {
+    //   _events: [Object: null prototype],
+    //   _eventsCount: 2,
+    //   _maxListeners: undefined,
+    //   defaultPort: 443,
+    //   protocol: 'https:',
+    //   options: [Object: null prototype],
+    //   requests: [Object: null prototype] {},
+    //   sockets: [Object: null prototype] {},
+    //   freeSockets: [Object: null prototype] {},
+    //   keepAliveMsecs: 1000,
+    //   keepAlive: true,
+    //   maxSockets: Infinity,
+    //   maxFreeSockets: 256,
+    //   scheduling: 'lifo',
+    //   maxTotalSockets: Infinity,
+    //   totalSocketCount: 0,
+    //   maxCachedSessions: 100,
+    //   _sessionCache: [Object],
+    //   [Symbol(kCapture)]: false
+    // },
+    timeout: 0
+  };
+  //console.log('sending rquest', request);
+  console.log('fetch tweet', request.url, 'tweet', tweet, 'guest_token', guest_token);
+
+  const collectionUid = '1ych59m00000000000000';
+  const envVars = { __name__: undefined };
+  const collectionVariables = {};
+  const processEnvVars = {};
+  const collectionPath = '/home/dan/repos/bruno_config/dan';
+
+  const axiosInstance = await configureRequest(
+    collectionUid,
+    request,
+    envVars,
+    collectionVariables,
+    processEnvVars,
+    collectionPath
+  );
+  let response;
+  try {
+    response = await axiosInstance(request);
+  } catch (e) {
+    console.log('err', e.toString());
+    console.log('error', 'tweet', tweet, 'guest_token', guest_token);
+    response = e.response;
+  }
+  const { data, dataBuffer } = parseDataFromResponse(response);
+  response.data = typeof data === 'object' ? JSON.stringify(data) : data;
+  console.log('sneding body', response.data);
+
+  // const res = await fetch(
+  //   'https://api.x.com/graphql/Xl5pC_lBk_gcO2ItU39DQw/TweetResultByRestId?variables=%7B%22tweetId%22%3A%221800787902189740109%22%2C%22withCommunity%22%3Afalse%2C%22includePromotedContent%22%3Afalse%2C%22withVoice%22%3Afalse%7D&features=%7B%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22communities_web_enable_tweet_community_results_fetch%22%3Atrue%2C%22c9s_tweet_anatomy_moderator_badge_enabled%22%3Atrue%2C%22articles_preview_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22responsive_web_twitter_article_tweet_consumption_enabled%22%3Atrue%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22creator_subscriptions_quote_tweet_preview_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22rweb_video_timestamps_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22rweb_tipjar_consumption_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D&fieldToggles=%7B%22withArticleRichContentState%22%3Atrue%2C%22withArticlePlainText%22%3Afalse%2C%22withGrokAnalyze%22%3Afalse%7D',
+  //   {
+  //     headers: {
+  //       authorization:
+  //         'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
+  //       'x-guest-token': '1802698192309592501'
+  //     }
+  //   }
+  // );
+  //console.log("res", res);
+  //document.getElementById("output").value = JSON.stringify(res);
+  return response;
+}
+const http = require('http');
+async function proxyServer() {
+  const port = 8083;
+
+  const requestListener = async function (_request, _response) {
+    //console.log("request", _request);
+    const url = new URL(_request.url, 'http://localhost:8083');
+    const params = url.searchParams;
+    const tweet = params.get('tweet');
+    const guest_token = params.get('guest_token');
+    const res = await get_tweet(tweet, guest_token);
+    //console.log('body', res.data);
+
+    Object.keys(res.headers).forEach((key) => {
+      _response.setHeader(key, res.headers[key]);
+    });
+    _response.setHeader('Content-Type', 'text/plain');
+    _response.setHeader('Content-Length', Buffer.byteLength(res.data));
+    _response.status = res.status;
+
+    _response.end(res.data);
+  };
+
+  const server = http.createServer(requestListener);
+  server.listen(
+    {
+      host: '0.0.0.0',
+      port
+    },
+    () => {
+      console.log(`Server listening on hostname  0.0.0.0:${port}`);
+    }
+  );
+
+  return await new Promise(() => {
+    console.log('huh');
+  });
+}
+proxyServer();
 
 module.exports = registerNetworkIpc;
 module.exports.configureRequest = configureRequest;
